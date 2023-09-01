@@ -1,0 +1,6 @@
+- name: Home
+  link: /
+- name: Install Fedora 37
+  link: /fedora37.html
+- name: Upgrade Fedora
+  link: /UpgradeFedora.html
