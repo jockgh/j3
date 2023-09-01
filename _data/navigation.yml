@@ -4,3 +4,5 @@
   link: /j3/fedora37.html
 - name: Upgrade Fedora
   link: /j3/UpgradeFedora.html
+- name: Install FreeBSD 13.1
+  link: /j3/freebsd131.html
