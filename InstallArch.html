@@ -1,28 +1,9 @@
-<!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <title>Install FreeBSD 13.1</title>
-    <link rel="stylesheet" href="/assets/css/styles.css">
-  </head>
-  <body>
-    <nav>
-  
-    <a href="/j3/" >Home</a>
-  
-    <a href="/j3/fedora37.html" >Install Fedora 37</a>
-  
-    <a href="/j3/UpgradeFedora.html" >Upgrade Fedora</a>
-  
-    <a href="/j3/freebsd131.html" >Install FreeBSD 13.1</a>
-  
-    <a href="/j3/InstallArch.html" >Install Arch</a>
-  
-    <a href="/j3/InstallDebian.html" >Install Debian 12</a>
-  
-</nav>
+---
+layout: default
+title: Install Arch
+---
 
-    <!DOCTYPE html>
+<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang xml:lang>
 <head>
   <meta charset="utf-8" />
@@ -512,209 +493,63 @@ margin-left: -1.6em;
   <![endif]-->
 </head>
 <body>
-<h1 id="install-freebsd-13.1">Install FreeBSD 13.1</h1>
-<p>This was written as simple install instructions for our customers who
-are installing FreeBSD 13.1 + Xfce</p>
-<p>** EDIT 1 - 13.2 is out - added upgrade instructions at end **</p>
-<p>Install on bare metal, generic kernel</p>
-<p>Basic freebsd install is straightforward :-</p>
-<h2 id="section-1-install">Section 1 INSTALL</h2>
-<p>Explicitly choose keyboard map (likely UK if Ireland not
-available)</p>
-<p>(Selections are made with space bar)</p>
-<p>You know your hostname - enter your details when asked</p>
-<p>Click ok at Distribution Select</p>
-<p>Install with ZFS (single disk / mirror / raid 1+0 / raidz depending
-on your setup) plus UEFI</p>
-<p>Installer will do it’s thing, until…</p>
-<p>At root password prompt enter unique, strong never used elsewhere
-password and repeat it</p>
-<p>For network - chose wired (for now) and accept defaults for IPv4
-&amp; IPv6</p>
-<p>At network configuration screen click OK</p>
-<p>Local or UTC (GMT) clock prompt - click no</p>
-<p>Explicitly choose timezone (likely Europe / Ireland)</p>
-<p>IST is reasonable - yes</p>
-<p>Skip date</p>
-<p>Skip time</p>
-<p>Select ntpdate &amp; ntpd when asked at System Configuration (select
-other options as required)</p>
-<p>At system hardening screen chose appropriately (maybe 5-10 on desktop
-install ?)</p>
-<p>Add User Accounts - yes</p>
-<p>When creating first user at ‘invite $USER into other groups’ prompt:-
-wheel operator video</p>
-<p>Else, accept defaults, but give your user a password &amp; type yes
-at end</p>
-<p>If you have other users to add at this point type yes else type
-no</p>
-<p>Exit</p>
-<p>No</p>
-<p>Reboot</p>
-<h2 id="section-2-first-boot">Section 2 First Boot</h2>
-<p>At console - root login (use root password you entered above) (these
-3 lines should be run fairly often to keep up)</p>
-<pre><code># freebsd-update fetch</code></pre>
-<p>(After it’s applied patches - might need a q or two or three to get
-back to prompt)</p>
-<pre><code># freebsd-update install
-# reboot</code></pre>
-<h2 id="section-3-second-boot">Section 3 Second Boot</h2>
-<h3 id="a.-initial-packages">3a. Initial Packages</h3>
-<p>At console - root login again</p>
-<pre><code># pkg install nano</code></pre>
-<p>(if it asks to install package manager type y) note : pkg install
-requires affirmative y to proceed you can do # pkg install -y
-************</p>
-<pre><code># pkg install xorg
-# pkg install xfce xfce4-goodies xfce4-places-plugin
-# pkg install lightdm lightdm-gtk-greeter
-# pkg install usbutils networkmgr fusefs-ifuse fusefs-ntfs
-# sysrc dbus_enable=YES lightdm_enable=YES
-# sysrc kld_list+=fusefs</code></pre>
-<h3 id="b.-video-drivers">3b. Video Drivers</h3>
-<p>Install relevant 1 of the following video drivers:-</p>
-<p>AMD</p>
-<pre><code># pkg install drm-kmod
-# sysrc kld_list+=amdgpu</code></pre>
-<p>Intel</p>
-<pre><code># pkg install drm-kmod
-# sysrc kld_list+=i915kms</code></pre>
-<p>Nvidia</p>
-<pre><code># pkg install nvidia-driver
-# sysrc kld_list+=nvidia-modeset</code></pre>
-<h3 id="c.-zpools">3c. Zpools</h3>
-<p>You have already exported your pools</p>
-<pre><code># zpool import</code></pre>
-<p>Will list pools and you can import by name/id</p>
-<p>Give your user(s) relevant access to your pools, possibly :</p>
-<pre><code># chown -R $USER: /$POOL</code></pre>
-<h3 id="d.-install-applications-useful-to-you-below-are-just-some-suggestions">3d.
-Install applications useful to you (below are just some
-suggestions)</h3>
-<pre><code># pkg install firefox terminator irssi thunar-archive-plugin libreoffice cmus file-roller sudo vlc ................</code></pre>
-<h3 id="e.-wifi-network">3e. WiFi Network</h3>
-<p>**** start wireless</p>
-<pre><code># sysctl net.wlan.devices</code></pre>
-<p>That will return something like rsu0</p>
-<p>(Substitute your 3 letters for rsu if necessary)</p>
-<pre><code># nano /boot/loader.conf
-  Add eof 1 line : if_rsu_load=“YES”</code></pre>
-<p>Save &amp; Exit</p>
-<pre><code># nano /etc/rc.conf
-Add eof 3 lines : wlans_rsu0=“wlan0”
-              Ifconfig_wlan0=”WPA SYNCDHCP”
-              create_args_wlan0=“country IE regdomain ETSI”</code></pre>
-<p>Save &amp; Exit</p>
-<pre><code># nano /etc/wpa_supplicant.conf
-Add eof 4 lines : network={
-                ssid=your WiFi network ssid name
-                psk=your WiFi network ssid password
-              }</code></pre>
-<p>Save &amp; Exit</p>
-<pre><code># service netif restart</code></pre>
-<p>This will show (towards the end of wlan0) … status: associated WiFi
-is alive. Happy days</p>
-<pre><code># ifconfig wlan0 list scan</code></pre>
-<p>This will show your WiFi network(s)</p>
-<p>**** end Wireless</p>
-<h3 id="f.-shells">3f. Shells</h3>
-<p>Some of you prefer zsh or fish etc to sh</p>
-<pre><code># pkg search zsh</code></pre>
-<p>or</p>
-<pre><code># pkg search fish</code></pre>
-<p>and then</p>
-<pre><code># pkg install **** </code></pre>
-<p>as required</p>
-<p>Note - you might also want to</p>
-<pre><code># pkg install powerline-fonts
-# chsh for user as per usual if required</code></pre>
-<h3 id="g.-sudo">3g. Sudo</h3>
-<p>If you want sudoers : to allow your original created user as member
-of wheel group to be a sudoer</p>
-<pre><code># visudo</code></pre>
-<p>Remove comment from line commencing # %wheel</p>
-<p>Save &amp; Exit (be very aware of and action any
-messages/warnings)</p>
-<p>(Better to be safe rather than sorry :))</p>
-<h3 id="h.-sound">3h. Sound</h3>
-<pre><code># pkg install xfce4-pulseaudio-plugin xfce4-volumed-pulse
-# nano /boot/loader.conf
-Add eof 1 line : snd_driver_load=“YES”</code></pre>
-<p>Save &amp; Exit</p>
-<pre><code># cat /dev/sndstat</code></pre>
-<p>This will list your sound card(s) &amp; show current default</p>
-<p>The unit number is derived from the pcm number - pcm0 is unit 0 &amp;
-pcm4 is unit 4 etc</p>
-<p>If the default shown is not the one you require, then</p>
-<pre><code># sysctl hw.snd.default_unit=4</code></pre>
-<p>To make your default choice permanent</p>
-<pre><code># nano /etc/sysctl.conf
-Add eof 1 line : hw.snd.default_unit=4</code></pre>
-<p>Save &amp; Exit</p>
-<p>[ Note : the default unit for your system might well be different to
-4 ]</p>
-<h3 id="i.-package-update-keep-packages-up-to-date-with-2-commands">3i.
-Package Update Keep packages up to date with 2 commands</h3>
-<pre><code># pkg update
-# pkg upgrade</code></pre>
-<p>(You’ll want to run these 2 regularly)</p>
-<pre><code># reboot</code></pre>
-<h2 id="section-4-first-user-boot">Section 4 First User Boot</h2>
-<p>You can now login to Xfce as user &amp; configure it as you require:
-Panels, keyboard, fonts, window manager, cursor, screensaver, themes,
-power manager, icons, wallpaper etc</p>
-<p>And you’ve got FreeBSD + Xfce up and running - it’s now back to real
-work my friends</p>
-<p>But (there’s always a but) please consider helping the FreeBSD
-community :- Donation / port maintenance / tester etc etc Many
-Thanks</p>
-<h3 id="a-cddvd-burning">4a CD/DVD Burning</h3>
-<p>Some of you might burn cd and/or dvd with Xfburn etc</p>
-<p>If it fails to find your device…..</p>
-<p>(Note - if your user is not sudoer, run all as root)</p>
-<pre><code>$ sudo nano /etc/devfs.rules
-
-(this file might be empty)
-
-(if [system 10] aleady exists just add the 3 lines under it)
-
-Add 4 lines : [system=10]
-          add path &#39;cd*&#39; mode 666
-          add path &#39;pass*&#39; mode 666
-          add path &#39;xpt0&#39; mode 666</code></pre>
-<p>Save &amp; Exit</p>
-<pre><code>$ sudo sysrc devfs_system_ruleset=&quot;system&quot;
-$ sudo service devfs restart</code></pre>
-<h2 id="edit-1-upgrade-to-13.2">EDIT 1 Upgrade to 13.2</h2>
-<p>Run the following commands to upgrade FreeBSD 13.1 to FreeBSD 13.2
-:</p>
-<p>(Note - if your user is not sudoer, run all as root)</p>
-<pre><code>$ sudo pkg update
-$ sudo reboot </code></pre>
-<p>Logon as your user</p>
-<pre><code>$ sudo freebsd-update -r 13.2-RELEASE upgrade</code></pre>
-<p>(Likely download well in excess of 1000 patches)</p>
-<p>it’ll ask a couple of times if looks reasonable - type y and
-enter</p>
-<p>enter q at : a couple of times to return to prompt</p>
-<p>(Note - a couple of reboots below)</p>
-<pre><code>$ sudo freebsd-update install
-$ sudo reboot
-$ sudo freebsd-update install </code></pre>
-<p>(it’ll check the certificates etc this time)</p>
+<h1 id="install-archlinux">Install ArchLinux</h1>
+<p>Prepared for Archlinux + Xfce de</p>
+<h2 id="installation">Installation</h2>
+<p>Basic installation is set out in this wiki</p>
+<p><a href="https://wiki.archlinux.org/title/Installation_guide">Installation</a><br />
+then<br />
+<a href="https://wiki.archlinux.org/title/General_recommendations">Post
+installation</a></p>
+<p>or<br />
+(not recommended for encrypted systems – see <a href="https://wiki.archlinux.org/title/Archinstall">ArchInstall
+wiki</a>)</p>
+<p>boot installation media and try</p>
+<pre><code># archinstall</code></pre>
+<h2 id="check-for-updates">Check for updates</h2>
+<p>On first logon to your sudo user created above</p>
+<pre><code>$ sudo pacman -Syu</code></pre>
+<h2 id="install-yay">Install yay</h2>
+<pre><code>$ sudo pacman -S base-devel git
+$ git clone https://aur.archlinux.org/yay.git
+$ cd yay
+$ makepkg -si
+$ cd</code></pre>
+<h2 id="install-a-couple-of-useful-things-from-the-aur">Install a couple
+of useful things from the AUR</h2>
+<pre><code>$ yay -Syu
+$ yay -S fastfetch gweled xfce4-places-plugin librewolf-bin tor-browser</code></pre>
+<h2 id="install-some-packages-fonts">Install some packages &amp;
+fonts</h2>
+<p>[This is an example list only, remove from/add to list as suits your
+purposes, some packages might already be installed]</p>
+<p>Watch Pacman feedback as it shows soft dependancies you might wish to
+include on your system</p>
+<pre><code>$ sudo pacman -S irssi weechat terminator ntfs-3g nmon btop glances cmus firefox kitty 
+$ sudo pacman -S gparted dosfstools mtools atool usbutils dkms wget curl mousepad
+$ sudo pacman -S vlc brasero neofetch unzip w3m nemo nemo-fileroller marker ghostwriter 
+$ sudo pacman -S mediainfo libreoffice ffmpegthumbs ffmpegthumbnailer nheko neochat k3b 
+$ sudo pacman -S ranger dvd+rw-tools cdrtools cdrdao pelican ifuse kde-games odt2txt 
+$ sudo pacman -S otf-aurulent-nerd otf-firamono-nerd otf-hermit-nerd ttf-agave-nerd    
+$ sudo pacman -S ttf-crimson ttf-dejavu ttf-fantasque-nerd ttf-fantasque-sans-mono 
+$ sudo pacman -S ttf-hack ttf-inconsolata ttf-jetbrains-mono ttf-lekton-nerd ttf-liberation  
+$ sudo pacman -S ttf-space-mono-nerd powerline powerline-fonts powerline-common ttf-proggy-clean  
+$ sudo pacman -S ttf-ionicons ttf-hack ttf-hack-nerd ttf-monofur ttf-daddytime-mono-nerd   
+$ sudo pacman -S ttf-cormorant ttf-cousine-nerd ttf-roboto-mono ttf-terminus-nerd ttf-fira-mono 
+$ sudo pacman -S ttf-crimson-pro ttf-font-awesome ttf-font-awesome awesome-terminal-fonts
+$ sudo pacman -S ttf-liberation-mono-nerd ttf-anonymous-pro ttf-fira-code ttf-dejavu  
+$ fc-cache -v
+$ sudo pacman -S networkmanager nm-connection-editor network-manager-applet
+$ sudo systemctl enable --now NetworkManager.service</code></pre>
+<h2 id="install-zsh-if-you-wish">Install zsh if you wish</h2>
+<pre><code>$ sudo pacman -S zsh
+$ sh -c &quot;$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)&quot;
+$ nano .zshrc (as required (themes etc))
+$ source ~/.zshrc (to update your current shell)
+$ chsh -s /bin/zsh $USERNAME  </code></pre>
+<p>Note installation of powerline fonts above</p>
+<h2 id="finally">Finally</h2>
 <pre><code>$ sudo reboot</code></pre>
-<p>After logging back into Xfce :</p>
-<pre><code>$ freebsd-version
-$ uname -r</code></pre>
-<p>(these last two commands show the same result)</p>
-<p>Package Upgrade</p>
-<pre><code>$ sudo pkg update
-$ sudo pkg upgrade </code></pre>
-<p>(the system is upgraded, this will upgrade any packages) .</p>
-<p>Any errors/omissions - let me know…</p>
+<p>and login as your user - you’ll have a fully functioning system</p>
 </body>
-</html>
-
-  </body>
 </html>

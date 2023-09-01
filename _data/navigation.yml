@@ -6,3 +6,7 @@
   link: /j3/UpgradeFedora.html
 - name: Install FreeBSD 13.1
   link: /j3/freebsd131.html
+- name: Install Arch
+  link: /j3/InstallArch.html
+- name: Install Debian 12
+  link: /j3/InstallDebian.html

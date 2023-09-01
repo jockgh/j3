@@ -1,28 +1,9 @@
-<!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <title>Install FreeBSD 13.1</title>
-    <link rel="stylesheet" href="/assets/css/styles.css">
-  </head>
-  <body>
-    <nav>
-  
-    <a href="/j3/" >Home</a>
-  
-    <a href="/j3/fedora37.html" >Install Fedora 37</a>
-  
-    <a href="/j3/UpgradeFedora.html" >Upgrade Fedora</a>
-  
-    <a href="/j3/freebsd131.html" >Install FreeBSD 13.1</a>
-  
-    <a href="/j3/InstallArch.html" >Install Arch</a>
-  
-    <a href="/j3/InstallDebian.html" >Install Debian 12</a>
-  
-</nav>
+---
+layout: default
+title: Install Debian 12
+---
 
-    <!DOCTYPE html>
+<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang xml:lang>
 <head>
   <meta charset="utf-8" />
@@ -512,209 +493,137 @@ margin-left: -1.6em;
   <![endif]-->
 </head>
 <body>
-<h1 id="install-freebsd-13.1">Install FreeBSD 13.1</h1>
-<p>This was written as simple install instructions for our customers who
-are installing FreeBSD 13.1 + Xfce</p>
-<p>** EDIT 1 - 13.2 is out - added upgrade instructions at end **</p>
-<p>Install on bare metal, generic kernel</p>
-<p>Basic freebsd install is straightforward :-</p>
-<h2 id="section-1-install">Section 1 INSTALL</h2>
-<p>Explicitly choose keyboard map (likely UK if Ireland not
-available)</p>
-<p>(Selections are made with space bar)</p>
-<p>You know your hostname - enter your details when asked</p>
-<p>Click ok at Distribution Select</p>
-<p>Install with ZFS (single disk / mirror / raid 1+0 / raidz depending
-on your setup) plus UEFI</p>
-<p>Installer will do it’s thing, until…</p>
-<p>At root password prompt enter unique, strong never used elsewhere
-password and repeat it</p>
-<p>For network - chose wired (for now) and accept defaults for IPv4
-&amp; IPv6</p>
-<p>At network configuration screen click OK</p>
-<p>Local or UTC (GMT) clock prompt - click no</p>
-<p>Explicitly choose timezone (likely Europe / Ireland)</p>
-<p>IST is reasonable - yes</p>
-<p>Skip date</p>
-<p>Skip time</p>
-<p>Select ntpdate &amp; ntpd when asked at System Configuration (select
-other options as required)</p>
-<p>At system hardening screen chose appropriately (maybe 5-10 on desktop
-install ?)</p>
-<p>Add User Accounts - yes</p>
-<p>When creating first user at ‘invite $USER into other groups’ prompt:-
-wheel operator video</p>
-<p>Else, accept defaults, but give your user a password &amp; type yes
-at end</p>
-<p>If you have other users to add at this point type yes else type
-no</p>
-<p>Exit</p>
-<p>No</p>
-<p>Reboot</p>
-<h2 id="section-2-first-boot">Section 2 First Boot</h2>
-<p>At console - root login (use root password you entered above) (these
-3 lines should be run fairly often to keep up)</p>
-<pre><code># freebsd-update fetch</code></pre>
-<p>(After it’s applied patches - might need a q or two or three to get
-back to prompt)</p>
-<pre><code># freebsd-update install
-# reboot</code></pre>
-<h2 id="section-3-second-boot">Section 3 Second Boot</h2>
-<h3 id="a.-initial-packages">3a. Initial Packages</h3>
-<p>At console - root login again</p>
-<pre><code># pkg install nano</code></pre>
-<p>(if it asks to install package manager type y) note : pkg install
-requires affirmative y to proceed you can do # pkg install -y
-************</p>
-<pre><code># pkg install xorg
-# pkg install xfce xfce4-goodies xfce4-places-plugin
-# pkg install lightdm lightdm-gtk-greeter
-# pkg install usbutils networkmgr fusefs-ifuse fusefs-ntfs
-# sysrc dbus_enable=YES lightdm_enable=YES
-# sysrc kld_list+=fusefs</code></pre>
-<h3 id="b.-video-drivers">3b. Video Drivers</h3>
-<p>Install relevant 1 of the following video drivers:-</p>
-<p>AMD</p>
-<pre><code># pkg install drm-kmod
-# sysrc kld_list+=amdgpu</code></pre>
-<p>Intel</p>
-<pre><code># pkg install drm-kmod
-# sysrc kld_list+=i915kms</code></pre>
-<p>Nvidia</p>
-<pre><code># pkg install nvidia-driver
-# sysrc kld_list+=nvidia-modeset</code></pre>
-<h3 id="c.-zpools">3c. Zpools</h3>
-<p>You have already exported your pools</p>
-<pre><code># zpool import</code></pre>
-<p>Will list pools and you can import by name/id</p>
-<p>Give your user(s) relevant access to your pools, possibly :</p>
-<pre><code># chown -R $USER: /$POOL</code></pre>
-<h3 id="d.-install-applications-useful-to-you-below-are-just-some-suggestions">3d.
-Install applications useful to you (below are just some
-suggestions)</h3>
-<pre><code># pkg install firefox terminator irssi thunar-archive-plugin libreoffice cmus file-roller sudo vlc ................</code></pre>
-<h3 id="e.-wifi-network">3e. WiFi Network</h3>
-<p>**** start wireless</p>
-<pre><code># sysctl net.wlan.devices</code></pre>
-<p>That will return something like rsu0</p>
-<p>(Substitute your 3 letters for rsu if necessary)</p>
-<pre><code># nano /boot/loader.conf
-  Add eof 1 line : if_rsu_load=“YES”</code></pre>
-<p>Save &amp; Exit</p>
-<pre><code># nano /etc/rc.conf
-Add eof 3 lines : wlans_rsu0=“wlan0”
-              Ifconfig_wlan0=”WPA SYNCDHCP”
-              create_args_wlan0=“country IE regdomain ETSI”</code></pre>
-<p>Save &amp; Exit</p>
-<pre><code># nano /etc/wpa_supplicant.conf
-Add eof 4 lines : network={
-                ssid=your WiFi network ssid name
-                psk=your WiFi network ssid password
-              }</code></pre>
-<p>Save &amp; Exit</p>
-<pre><code># service netif restart</code></pre>
-<p>This will show (towards the end of wlan0) … status: associated WiFi
-is alive. Happy days</p>
-<pre><code># ifconfig wlan0 list scan</code></pre>
-<p>This will show your WiFi network(s)</p>
-<p>**** end Wireless</p>
-<h3 id="f.-shells">3f. Shells</h3>
-<p>Some of you prefer zsh or fish etc to sh</p>
-<pre><code># pkg search zsh</code></pre>
-<p>or</p>
-<pre><code># pkg search fish</code></pre>
-<p>and then</p>
-<pre><code># pkg install **** </code></pre>
-<p>as required</p>
-<p>Note - you might also want to</p>
-<pre><code># pkg install powerline-fonts
-# chsh for user as per usual if required</code></pre>
-<h3 id="g.-sudo">3g. Sudo</h3>
-<p>If you want sudoers : to allow your original created user as member
-of wheel group to be a sudoer</p>
-<pre><code># visudo</code></pre>
-<p>Remove comment from line commencing # %wheel</p>
-<p>Save &amp; Exit (be very aware of and action any
-messages/warnings)</p>
-<p>(Better to be safe rather than sorry :))</p>
-<h3 id="h.-sound">3h. Sound</h3>
-<pre><code># pkg install xfce4-pulseaudio-plugin xfce4-volumed-pulse
-# nano /boot/loader.conf
-Add eof 1 line : snd_driver_load=“YES”</code></pre>
-<p>Save &amp; Exit</p>
-<pre><code># cat /dev/sndstat</code></pre>
-<p>This will list your sound card(s) &amp; show current default</p>
-<p>The unit number is derived from the pcm number - pcm0 is unit 0 &amp;
-pcm4 is unit 4 etc</p>
-<p>If the default shown is not the one you require, then</p>
-<pre><code># sysctl hw.snd.default_unit=4</code></pre>
-<p>To make your default choice permanent</p>
-<pre><code># nano /etc/sysctl.conf
-Add eof 1 line : hw.snd.default_unit=4</code></pre>
-<p>Save &amp; Exit</p>
-<p>[ Note : the default unit for your system might well be different to
-4 ]</p>
-<h3 id="i.-package-update-keep-packages-up-to-date-with-2-commands">3i.
-Package Update Keep packages up to date with 2 commands</h3>
-<pre><code># pkg update
-# pkg upgrade</code></pre>
-<p>(You’ll want to run these 2 regularly)</p>
-<pre><code># reboot</code></pre>
-<h2 id="section-4-first-user-boot">Section 4 First User Boot</h2>
-<p>You can now login to Xfce as user &amp; configure it as you require:
-Panels, keyboard, fonts, window manager, cursor, screensaver, themes,
-power manager, icons, wallpaper etc</p>
-<p>And you’ve got FreeBSD + Xfce up and running - it’s now back to real
-work my friends</p>
-<p>But (there’s always a but) please consider helping the FreeBSD
-community :- Donation / port maintenance / tester etc etc Many
-Thanks</p>
-<h3 id="a-cddvd-burning">4a CD/DVD Burning</h3>
-<p>Some of you might burn cd and/or dvd with Xfburn etc</p>
-<p>If it fails to find your device…..</p>
-<p>(Note - if your user is not sudoer, run all as root)</p>
-<pre><code>$ sudo nano /etc/devfs.rules
+<h1 id="install-debian-12-bookworm">Install Debian 12 (Bookworm)</h1>
+<p>UEFI boot<br />
+Xfce de</p>
+<p><br><br> ## Boot from install media</p>
+<h3 id="graphical-install">Graphical Install</h3>
+<p>Select English language<br />
+Select location Ireland<br />
+Select Irish or British English keymap<br />
+The installer will now configure your wired network<br />
+You know your hostname - enter details as required<br />
+(<strong><em>as most of you do, we’ll set root
+password</em></strong>)<br />
+Input root password - unique, complicated &amp; unforgetable - times
+2<br />
+Enter name of your first user (we’ll give them sudo access later, if
+required)<br />
+Enter account username Enter user’s password x 2<br />
+#### Partition disks Guided - use entire disk (<strong><em>ensure
+there’s no valuable data on it</em></strong>)<br />
+Select the disk you wish to use for /boot / etc<br />
+All files in one partition check it’s going to F the required partitions
+on correct disk(s)<br />
+click Finish Partitioning and write changes to disk Continue<br />
+Click Yes &amp; Continue<br />
+it will partition disk(s) &amp; install base system<br />
+Scan more media – No &amp; Continue<br />
+Select suitable county / mirror when asked<br />
+Leave proxy blank unless you know required details &amp; continue<br />
+it’ll now install some packages incl kernel &amp; firmware<br />
+Popularity = No &amp; Continue<br />
+#### Software selection<br />
+Untick Gnome<br />
+Tick Xfce<br />
+Leave others<br />
+Continue</p>
+<p>When ready Debian will eject media<br />
+Clock Continue to reboot</p>
+<h2 id="first-boot">First Boot</h2>
+<p>Login as your user</p>
+<pre><code>$ su</code></pre>
+<p>Enter root paswrord you created above</p>
+<h3 id="update-system">Update system</h3>
+<pre><code># nano /etc/apt/sources.list
+comment all
+add :- 
+deb http://deb.debian.org/debian bookworm main contrib non-free non-free-firmware
+deb-src http://deb.debian.org/debian bookworm main contrib non-free non-free-firmware
 
-(this file might be empty)
+deb http://deb.debian.org/debian-security/ bookworm-security main contrib non-free non-free-firmware
+deb-src http://deb.debian.org/debian-security/ bookworm-security main contrib non-free non-free-firmware
 
-(if [system 10] aleady exists just add the 3 lines under it)
+deb http://deb.debian.org/debian bookworm-updates main contrib non-free non-free-firmware
+deb-src http://deb.debian.org/debian bookworm-updates main contrib non-free non-free-firmware
 
-Add 4 lines : [system=10]
-          add path &#39;cd*&#39; mode 666
-          add path &#39;pass*&#39; mode 666
-          add path &#39;xpt0&#39; mode 666</code></pre>
-<p>Save &amp; Exit</p>
-<pre><code>$ sudo sysrc devfs_system_ruleset=&quot;system&quot;
-$ sudo service devfs restart</code></pre>
-<h2 id="edit-1-upgrade-to-13.2">EDIT 1 Upgrade to 13.2</h2>
-<p>Run the following commands to upgrade FreeBSD 13.1 to FreeBSD 13.2
-:</p>
-<p>(Note - if your user is not sudoer, run all as root)</p>
-<pre><code>$ sudo pkg update
-$ sudo reboot </code></pre>
-<p>Logon as your user</p>
-<pre><code>$ sudo freebsd-update -r 13.2-RELEASE upgrade</code></pre>
-<p>(Likely download well in excess of 1000 patches)</p>
-<p>it’ll ask a couple of times if looks reasonable - type y and
-enter</p>
-<p>enter q at : a couple of times to return to prompt</p>
-<p>(Note - a couple of reboots below)</p>
-<pre><code>$ sudo freebsd-update install
-$ sudo reboot
-$ sudo freebsd-update install </code></pre>
-<p>(it’ll check the certificates etc this time)</p>
-<pre><code>$ sudo reboot</code></pre>
-<p>After logging back into Xfce :</p>
-<pre><code>$ freebsd-version
-$ uname -r</code></pre>
-<p>(these last two commands show the same result)</p>
-<p>Package Upgrade</p>
-<pre><code>$ sudo pkg update
-$ sudo pkg upgrade </code></pre>
-<p>(the system is upgraded, this will upgrade any packages) .</p>
-<p>Any errors/omissions - let me know…</p>
+deb http://deb.debian.org/debian bookworm-backports main contrib non-free non-free-firmware
+deb-src http://deb.debian.org/debian bookworm-backports main contrib non-free non-free-firmware
+
+save and exit  </code></pre>
+<h3 id="install-zfs-others">Install ZFS &amp; Others</h3>
+<p>We’ll update system &amp; install ZFS etc</p>
+<pre><code># apt update
+# apt install linux-headers-amd64 dkms
+# apt install -t bookworm-backports zfsutils-linux
+# apt install gparted mtools ntfs-3g ifuse dosfstools unzip usbutils nemo-fileroller</code></pre>
+<h3 id="importcreate-zpool">Import/Create zpool</h3>
+<pre><code># zpool import
+list available pools to import (if any, then)
+# zpool import -f $POOLNAME</code></pre>
+<p>else</p>
+<pre><code># gparted
+prep disks
+save
+# zpool create $POOLNAME raidz sda sdb sdc sdd (etc)</code></pre>
+<p><strong>Give user access to pool is required</strong></p>
+<pre><code># chown -R $USER: /$POOLNAME</code></pre>
+<h3 id="install-packages-fonts">Install packages &amp; fonts</h3>
+<p>You can add or subtract from this list as you like</p>
+<pre><code># apt install -y kitty terminator irssi weechat gweled kdegames nmon btop glances brasero neofetch git dkms wget curl cmus dpkg gdebi  
+# apt install -y fonts-creep2 fonts-powerline fonts-hack fonts-firacode fonts-league-mono fonts-spleen fonts-proggy fonts-liberation fonts-agave fonts-freefont-ttf   
+# apt install -y fonts-fantasma fonts-ferrite-core fonts-fantasque-sans fonts-leckerli-one   
+
+# fc-cache -v
+
+# apt install -y accountsservice gir1.2-accountsservice-1.0 libuser1 libuser usermode 
+
+# apt install -y zsh</code></pre>
+<h3 id="sudo-rights">Sudo rights</h3>
+<p>if required, give sudo rights to user</p>
+<pre><code> # gpasswd -a $USER sudo </code></pre>
+<p>Prepare for reboot</p>
+<pre><code> # exit  
+ Reboot
+ </code></pre>
+<h2 id="second-boot">Second boot</h2>
+<p>Login as user</p>
+<pre><code>$ mkdir ~/iPhone &amp;&amp; ifuse iPhone</code></pre>
+<h3 id="configure-zsh-if-required">Configure ZSH if required</h3>
+<p>IF you’d rather zsh shell instead of Bash<br />
+(powerline fonts installed above)</p>
+<pre><code>$ sh -c &quot;$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)&quot;
+$ nano .zshrc (as required (themes etc))
+$ source ~/.zshrc  
+(to update your current shell)
+$ chsh -s /bin/zsh $USERNAME</code></pre>
+<h3 id="wifi-usb">WiFi USB</h3>
+<p>IF using a usb wifi that isn’t seen - rtl8192eu just for example</p>
+<pre><code>$ sudo apt install -y dkms git  
+[might already be installed]</code></pre>
+<p>and then ….</p>
+<p>search in browser = for file and instruction for install</p>
+<p>download file</p>
+<p>extract if asked into downloads directory</p>
+<p>in terminal</p>
+<pre><code>$ cd to /home/$USER/Downloads/rtl8192eu-linux-5.11.2.1/
+
+$ ./install_wifi.sh  
+$ sudo reboot</code></pre>
+<h2 id="third-boot">Third boot</h2>
+<p>Login as user</p>
+<p>configure xfce (themes, icons, cursors, power manager, firefox etc)
+as you will</p>
+<p><br><br></p>
+<h2 id="install-a-.deb-file">Install a *.deb file</h2>
+<p>Added as required by customers<br />
+download deb file (into ~/Downloads directory by default)</p>
+<pre><code>$ cd Downloads
+$ sudo dpkg -i whatever.deb
+$ sudo apt install -f
+$ apt list --installed</code></pre>
+<p>this last command should show your .deb as “[installed,local]” … (if
+you dont see it, increase # of lines in your scroll history and
+re-run)</p>
 </body>
-</html>
-
-  </body>
 </html>
