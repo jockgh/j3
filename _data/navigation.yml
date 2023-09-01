@@ -1,6 +1,6 @@
 - name: Home
-  link: /
+  link: /j3/
 - name: Install Fedora 37
-  link: /fedora37.html
+  link: /j3/fedora37.html
 - name: Upgrade Fedora
-  link: /UpgradeFedora.html
+  link: /j3/UpgradeFedora.html
